@@ -46,10 +46,34 @@ const emitRooms = () => {
 io.on('connection', (socket) => {
 	console.log('User connected: ', socket.id);
 
+	emitRooms();
+
 	socket.on('create_room', (room) => {
 		rooms.push(room);
 		emitRooms();
 	});
+	socket.on('username', (username) => {
+		socket.username = username;
+		console.log('THIS IS FROM SERVER: hi ', socket.username);
+		console.log(socket);
+	});
+	socket.on('join_room', (roomName) => {
+		socket.join(roomName);
+	});
+
+	socket.on('delete_room', (roomName) => {
+		console.log(io.sockets.in(roomName));
+	});
+
+	// io.of('/').in('room name').clients(function(error, clients) {
+	// 	if (clients.length > 0) {
+	// 		console.log('clients in the room: \n');
+	// 		console.log(clients);
+	// 		clients.forEach(function(socket_id) {
+	// 			io.sockets.sockets[socket_id].leave('room name');
+	// 		});
+	// 	}
+	// });
 
 	//when someone creates a room
 	//room gets created and displyed in the lobby

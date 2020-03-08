@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { Table, Button, Row, Col, Container } from 'reactstrap';
+import { Table, Row, Col, Container } from 'reactstrap';
 import CreateRoom from './CreateRoom';
-import { Link } from 'react-router-dom';
+
 import socket from './../socket';
+import RoomTable from './RoomTable';
 
 class Lobby extends Component {
 	constructor(props) {
@@ -11,20 +12,6 @@ class Lobby extends Component {
 			rooms: []
 		};
 	}
-	updateTable = () => {
-		return this.state.rooms.map((room, index) => {
-			return (
-				<tr key="index">
-					<td>{index + 1}</td>
-					<td>{room}</td>
-					<td>
-						<Button color="secondary">Join</Button>
-					</td>
-				</tr>
-			);
-		});
-	};
-
 	getData = () => {
 		socket.on('rooms', (room) => {
 			this.setState({ rooms: room });
@@ -32,7 +19,6 @@ class Lobby extends Component {
 	};
 	componentDidMount() {
 		this.getData();
-		this.updateTable();
 	}
 
 	render() {
@@ -45,10 +31,11 @@ class Lobby extends Component {
 								<tr>
 									<th>Room Number</th>
 									<th>Room Name</th>
-									<th>Join Room</th>
+									<th />
+									<th />
 								</tr>
 							</thead>
-							<tbody>{this.updateTable()}</tbody>
+							<RoomTable rooms={this.state.rooms} />
 						</Table>
 					</Col>
 					<Col>

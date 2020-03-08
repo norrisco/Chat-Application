@@ -12,9 +12,11 @@ class CreateRoom extends Component {
 	handleChange = (e) => {
 		this.setState({ roomName: e.target.value });
 	};
+
+	// popUpModal = () => {};
 	handleClick = () => {
 		socket.emit('create_room', this.state.roomName);
-		// this.state.rooms.push(this.state.roomName);
+		this.setState({ roomName: '' });
 	};
 
 	render() {
@@ -27,6 +29,7 @@ class CreateRoom extends Component {
 							name="text"
 							id="roomName"
 							placeholder="Room name"
+							value={this.state.roomName}
 							onChange={this.handleChange}
 						/>
 					</Col>
