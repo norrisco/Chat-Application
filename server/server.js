@@ -1,18 +1,3 @@
-// const express = require('express');
-
-// const http = require('http').Server(app);
-// const socketIo = require('socket.io');
-// const path = require('path');
-
-// const router = require('./routes/index');
-// const port = process.env.PORT || 4001;
-
-// const app = express();
-// const server = http.createServer(app);
-// const io = socketIo(server);
-
-// app.use(express.static(path.join(__dirname, 'public')));
-// app.use(router);
 const express = require('express');
 const app = express();
 
@@ -34,46 +19,60 @@ const users = [];
 const rooms = [];
 
 const getRooms = () => {
-	// let clients = io.sockets.clients().connected;
-	// //will grab all values of client and return an array
-	// let sockets = Object.values(clients);
 	return rooms;
+};
+
+const getUsers = () => {
+	return users;
 };
 const emitRooms = () => {
 	io.emit('rooms', getRooms());
 };
+const emitUsers = () => {
+	io.emit('users', getUsers());
+};
 
 io.on('connection', (socket) => {
 	console.log('User connected: ', socket.id);
-
+	console.log(' %s sockets connected', io.engine.clientsCount);
 	emitRooms();
+	emitUsers();
 
-	socket.on('create_room', (room) => {
-		rooms.push(room);
+	socket.on('create_room', (roomname, username) => {
+		rooms.push(roomname);
+		socket.join(roomname);
+		socket.username = username;
+		users.push({ id: socket.id, username: username });
 		emitRooms();
+		emitUsers();
 	});
+	socket.on('message', ({ room, message }) => {
+		socket.to(room).emit('message', {
+			message,
+			name: socket.username
+		});
+	});
+	socket.on('typing', ({ room }) => {
+		socket.to(room).emit('typing', 'Someone is typing');
+	});
+
+	socket.on('stopped_tying', ({ room }) => {
+		socket.to(room).emit('stopped_tying');
+	});
+
 	socket.on('username', (username) => {
 		socket.username = username;
 		console.log('THIS IS FROM SERVER: hi ', socket.username);
 		console.log(socket);
 	});
-	socket.on('join_room', (roomName) => {
+	socket.on('join', ({ roomName, username }, callback) => {
+		socket.username = username;
 		socket.join(roomName);
 	});
 
 	socket.on('delete_room', (roomName) => {
 		console.log(io.sockets.in(roomName));
 	});
-
-	// io.of('/').in('room name').clients(function(error, clients) {
-	// 	if (clients.length > 0) {
-	// 		console.log('clients in the room: \n');
-	// 		console.log(clients);
-	// 		clients.forEach(function(socket_id) {
-	// 			io.sockets.sockets[socket_id].leave('room name');
-	// 		});
-	// 	}
-	// });
 
 	//when someone creates a room
 	//room gets created and displyed in the lobby

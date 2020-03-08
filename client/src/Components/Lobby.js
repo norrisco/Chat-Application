@@ -9,12 +9,16 @@ class Lobby extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			rooms: []
+			rooms: [],
+			users: []
 		};
 	}
 	getData = () => {
 		socket.on('rooms', (room) => {
 			this.setState({ rooms: room });
+		});
+		socket.on('users', (user) => {
+			this.setState({ users: user });
 		});
 	};
 	componentDidMount() {
@@ -26,12 +30,11 @@ class Lobby extends Component {
 			<Container>
 				<Row>
 					<Col>
-						<Table>
+						<Table dark>
 							<thead>
 								<tr>
 									<th>Room Number</th>
 									<th>Room Name</th>
-									<th />
 									<th />
 								</tr>
 							</thead>
@@ -39,7 +42,7 @@ class Lobby extends Component {
 						</Table>
 					</Col>
 					<Col>
-						<CreateRoom />
+						<CreateRoom rooms={this.state.rooms} users={this.state.users} />
 					</Col>
 				</Row>
 			</Container>

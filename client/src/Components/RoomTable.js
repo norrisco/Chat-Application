@@ -4,17 +4,6 @@ import socket from '../socket';
 import { Link } from 'react-router-dom';
 
 const RoomTable = (props) => {
-	let username;
-
-	// function join(room) {
-	// 	// username = prompt('Please enter your name.');
-	// 	// socket.emit('username', username);
-	// 	socket.emit('join_room', room);
-	// }
-	// function deleteRoom(room) {
-	// 	socket.emit('delete_room', room);
-	// }
-
 	return (
 		<tbody>
 			{props.rooms.map((room, index) => {
@@ -23,10 +12,9 @@ const RoomTable = (props) => {
 						<td>{index + 1}</td>
 						<td>{room}</td>
 						<td>
-							<Button color="secondary">Join</Button>
-						</td>
-						<td>
-							<Button color="secondary">Delete</Button>
+							<Link to={`/chatroom/${room}`}>
+								<Button color="success">Join</Button>
+							</Link>
 						</td>
 					</tr>
 				);
@@ -35,6 +23,3 @@ const RoomTable = (props) => {
 	);
 };
 export default RoomTable;
-// join = () => {
-// 	let
-// };

@@ -1,10 +1,22 @@
 import React, { Component } from 'react';
+import './Chatroom.css';
 // // import { Table, Button, Row, Col, Container } from 'reactstrap';
 // import CreateRoom from './CreateRoom';
+import socket from '../socket';
 
 class Chatroom extends Component {
 	render() {
-		return <h1>THIS IS THE CHAT ROOM</h1>;
+		return (
+			<div className="Chatroom">
+				<div id="message-container" />
+				<form id="send-container">
+					<input type="text" id="message-input" />
+					<button type="submit" id="send-button">
+						Send
+					</button>
+				</form>
+			</div>
+		);
 	}
 }
 export default Chatroom;

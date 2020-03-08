@@ -11,18 +11,7 @@ class Header extends Component {
 						Chat App
 					</NavbarBrand>
 
-					<Nav className="ml" navbar>
-						<NavItem>
-							<NavLink tag={Link} to="/Chatroom">
-								Chatroom
-							</NavLink>
-						</NavItem>
-						<NavItem>
-							<NavLink tag={Link} to="/liveVisitors">
-								Live Visitors
-							</NavLink>
-						</NavItem>
-					</Nav>
+					<Nav className="ml" navbar />
 				</Navbar>
 			</div>
 		);
