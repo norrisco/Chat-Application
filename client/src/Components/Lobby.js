@@ -13,16 +13,13 @@ class Lobby extends Component {
 			users: []
 		};
 	}
-	getData = () => {
+	componentDidMount() {
 		socket.on('rooms', (room) => {
 			this.setState({ rooms: room });
 		});
 		socket.on('users', (user) => {
 			this.setState({ users: user });
 		});
-	};
-	componentDidMount() {
-		this.getData();
 	}
 
 	render() {

@@ -3,14 +3,8 @@ import { Button } from 'reactstrap';
 import { Link } from 'react-router-dom';
 
 const RoomTable = (props) => {
-	const [ username, setUsername ] = useState('');
+	const [ username ] = useState('');
 
-	// function handleSetusername() {
-	// 	if (username === '') {
-	// 		const user = prompt('What is your name?');
-	// 		setUsername(user);
-	// 	}
-	// }
 	return (
 		<tbody>
 			{props.rooms.map((room, index) => {

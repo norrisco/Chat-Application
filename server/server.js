@@ -6,6 +6,10 @@ const io = require('socket.io')(http);
 const bodyParser = require('body-parser');
 const path = require('path');
 const mongoose = require('mongoose');
+const connect = require('./dbConnection');
+const Chat = require('./models/chatSchema');
+const chatRouter = require('./routes/chatRoute');
+const index = require('./routes/index');
 
 const port = 3001;
 app.use(express.static(path.join(__dirname, '..', 'public')));
@@ -13,6 +17,10 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 http.listen(port, () => {
 	console.log(`listening on port: ${port}`);
 });
+
+//routes
+// app.use('/', index);
+app.use('/chat', chatRouter);
 
 const users = [];
 const rooms = [];
@@ -33,7 +41,10 @@ const emitUsers = () => {
 const returnUsername = () => {
 	io.emit('username', socket.username);
 };
-
+const userjoined = (username, roomname) => {
+	// io.emit('broadcast', username);
+	io.to(roomname).emit('broadcast', username);
+};
 io.on('connection', (socket) => {
 	console.log('User connected: ', socket.id);
 	console.log(' %s sockets connected', io.engine.clientsCount);
@@ -49,8 +60,18 @@ io.on('connection', (socket) => {
 		emitRooms();
 		emitUsers();
 	});
-	socket.on('sendMessage', ({ roomname, message }) => {
-		socket.to(roomname).broadcast.emit('message', { message: message, name: roomnames[roomname].users[socket.id] });
+	socket.on('sendMessage', (msgObj) => {
+		// socket.to(roomname).broadcast.emit('message', { message: message, name: roomnames[roomname].users[socket.id] });
+		console.log(msgObj);
+		socket.broadcast.emit('received', msgObj);
+
+		//save chat to DB
+		connect.then((db) => {
+			//new document
+			let chatMessage = new Chat({ message: msgObj.message, sender: msgObj.sender });
+			chatMessage.save();
+			//console.log("- message saved to database");
+		});
 	});
 	socket.on('typing', (data) => {
 		socket.broadcast.emit('typing', { username: socket.username });
@@ -63,9 +84,11 @@ io.on('connection', (socket) => {
 	socket.on('username', (username) => {
 		socket.username = username;
 	});
+
 	socket.on('join', (roomname) => {
 		socket.join(roomname);
 		console.log(socket.username, 'has joined the room:', roomname);
+		userjoined(socket.username, roomname);
 	});
 
 	socket.on('delete_room', (roomname) => {

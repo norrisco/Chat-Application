@@ -4,13 +4,6 @@ import Layout from './Containers/Layout';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
 
 class App extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			username: ''
-		};
-	}
-
 	render() {
 		return (
 			<React.Fragment>
