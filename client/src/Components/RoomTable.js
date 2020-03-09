@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from 'reactstrap';
 import { Link } from 'react-router-dom';
 
 const RoomTable = (props) => {
+	const [ username, setUsername ] = useState('');
+
+	// function handleSetusername() {
+	// 	if (username === '') {
+	// 		const user = prompt('What is your name?');
+	// 		setUsername(user);
+	// 	}
+	// }
 	return (
 		<tbody>
 			{props.rooms.map((room, index) => {
@@ -11,7 +19,7 @@ const RoomTable = (props) => {
 						<td>{index + 1}</td>
 						<td>{room}</td>
 						<td>
-							<Link to={`/chatroom/${room}`}>
+							<Link to={{ pathname: `/chatroom/${room}`, username: username, roomName: room }}>
 								<Button color="success">Join</Button>
 							</Link>
 						</td>
@@ -22,3 +30,4 @@ const RoomTable = (props) => {
 	);
 };
 export default RoomTable;
+// onClick={handleSetusername}

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import './Chatroom.css';
-import { Input, Button } from 'reactstrap';
+import { Input, Button, Row } from 'reactstrap';
 import socket from '../socket';
 
 class Chatroom extends Component {
@@ -10,32 +10,62 @@ class Chatroom extends Component {
 			message: '',
 			username: '',
 			roomName: '',
-			rooms: []
+			rooms: [],
+			isTyping: false,
+			friend: ''
 		};
 	}
 	handleMessage = (e) => {
-		this.setState({ message: e.target.value });
-	};
-	sendMessage = (e) => {
-		e.preventDefault();
-		const room = this.state.roomName;
-		const message = this.state.message;
-	};
-	getUsername = () => {
-		const user = this.props.location.username;
-		this.setState({ username: user });
+		socket.emit('typing', this.state.roomName);
+		this.setState({ message: e.target.value, isTyping: true });
 	};
 
+	sendMessage = (e) => {
+		e.preventDefault();
+		const message = this.state.message;
+	};
+	getData = () => {
+		const user = this.props.location.username;
+		const room = this.props.location.roomName;
+		this.setState({ username: user, roomName: room });
+		if (user === '') {
+			console.log('USER IS EMPTY THIS SHOULD PROMPT');
+			this.prompUserData(room);
+			return;
+		}
+	};
+
+	listenTyping = () => {
+		socket.on('typing', (data) => {
+			console.log(data.username, 'is typing');
+		});
+	};
+	handleKeyPress = (e) => {
+		socket.emit('typing');
+		this.setState({ isTyping: true });
+	};
+
+	prompUserData(room) {
+		let user = prompt('what is your name?');
+		this.setState({ username: user });
+		socket.emit('username', user);
+		socket.emit('join', room);
+		socket.on('joined_room', (username) => {
+			console.log(username);
+		});
+	}
 	componentDidMount() {
-		this.getUsername();
+		this.getData();
 	}
 
 	render() {
-		// console.log(this.state.user);
 		return (
 			<div className="Chatroom">
-				Hello, {this.state.username}
-				<div id="messageContainer" />
+				<Row>Hello, {this.state.username}</Row>
+				<Row>
+					<div id="messageContainer" />
+					{this.state.isTyping ? this.listenTyping : null}
+				</Row>
 				<form id="sendContainer">
 					<Input
 						type="text"
@@ -44,6 +74,7 @@ class Chatroom extends Component {
 						placeholder="Type your message here:"
 						value={this.state.message}
 						onChange={this.handleMessage}
+						onKeyPress={this.handleKeyPress}
 					/>
 					<Button color="primary" onClick={this.sendMessage}>
 						Send

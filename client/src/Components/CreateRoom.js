@@ -63,7 +63,13 @@ class CreateRoom extends Component {
 					/>
 				</FormGroup>
 				<FormGroup>
-					<Link to={{ pathname: `/chatroom/${this.state.roomName}`, username: this.state.username }}>
+					<Link
+						to={{
+							pathname: `/chatroom/${this.state.roomName}`,
+							username: this.state.username,
+							roomName: this.state.roomName
+						}}
+					>
 						<Button color="primary" onClick={this.handleClick}>
 							Create
 						</Button>

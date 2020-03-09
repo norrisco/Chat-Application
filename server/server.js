@@ -44,6 +44,7 @@ io.on('connection', (socket) => {
 		rooms.push(roomname);
 		socket.join(roomname);
 		socket.username = username;
+		console.log(socket.username, 'has created the room:', roomname);
 		users.push({ id: socket.id, username: username });
 		emitRooms();
 		emitUsers();
@@ -51,21 +52,20 @@ io.on('connection', (socket) => {
 	socket.on('sendMessage', ({ roomname, message }) => {
 		socket.to(roomname).broadcast.emit('message', { message: message, name: roomnames[roomname].users[socket.id] });
 	});
-	socket.on('typing', ({ roomname }) => {
-		socket.to(roomname).emit('typing', 'Someone is typing');
+	socket.on('typing', (data) => {
+		socket.broadcast.emit('typing', { username: socket.username });
 	});
 
 	socket.on('stopped_tying', ({ roomname }) => {
 		socket.to(roomname).emit('stopped_tying');
 	});
 
-	socket.emit('username', () => {
-		console.log(socket.username);
-		return socket.username;
-	});
-	socket.on('join', (roomname, username) => {
+	socket.on('username', (username) => {
 		socket.username = username;
+	});
+	socket.on('join', (roomname) => {
 		socket.join(roomname);
+		console.log(socket.username, 'has joined the room:', roomname);
 	});
 
 	socket.on('delete_room', (roomname) => {
