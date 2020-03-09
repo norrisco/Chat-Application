@@ -1,8 +1,7 @@
-import React, { Component, useState } from 'react';
-import { Button, Row, Col, Input, FormGroup, Label, Alert } from 'reactstrap';
+import React, { Component } from 'react';
+import { Button, Input, FormGroup, Label, Alert } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import socket from './../socket';
-
 class CreateRoom extends Component {
 	constructor(props) {
 		super(props);
@@ -64,7 +63,7 @@ class CreateRoom extends Component {
 					/>
 				</FormGroup>
 				<FormGroup>
-					<Link to={`/chatroom/${this.state.roomName}`}>
+					<Link to={{ pathname: `/chatroom/${this.state.roomName}`, username: this.state.username }}>
 						<Button color="primary" onClick={this.handleClick}>
 							Create
 						</Button>

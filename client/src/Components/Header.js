@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { Navbar, NavbarBrand, Nav, NavItem, NavLink } from 'reactstrap';
+import { Navbar, NavbarBrand, Nav } from 'reactstrap';
 
 class Header extends Component {
 	render() {
@@ -18,13 +18,3 @@ class Header extends Component {
 	}
 }
 export default Header;
-// <NavbarToggler onClick={this.toggle} />
-// state = {
-// 	isOpen: false
-// };
-
-// toggle = () => {
-// 	this.setState({
-// 		isOpen: !this.state.isOpen
-// 	});
-// };

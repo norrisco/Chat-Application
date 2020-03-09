@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from 'reactstrap';
-import socket from '../socket';
 import { Link } from 'react-router-dom';
 
 const RoomTable = (props) => {
