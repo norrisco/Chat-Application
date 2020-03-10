@@ -9,18 +9,35 @@ const mongoose = require('mongoose');
 const connect = require('./dbConnection');
 const Chat = require('./models/chatSchema');
 const chatRouter = require('./routes/chatRoute');
+const Socket = require('./models/socketSchema');
+const socketRouter = require('./routes/socketRoute');
+const roomRouter = require('./routes/roomRoute');
 const index = require('./routes/index');
-
+const cors = require('cors');
 const port = 3001;
+
+app.use(cors());
+
+// Configuring body parser middleware
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
-`				`;
+
 http.listen(port, () => {
 	console.log(`listening on port: ${port}`);
 });
 
 //routes
-// app.use('/', index);
+// Use Api routes in the App
+app.use('/api', index);
 app.use('/chat', chatRouter);
+app.use('/events', socketRouter);
+app.use('/room', roomRouter);
+
+// app.post('/room', function(req, res) {
+// 	console.log('THIS IS FROM SERVER FILE', req.query.roomname);
+// 	res.end('yes');
+// });
 
 const users = [];
 const rooms = [];
@@ -62,31 +79,55 @@ io.on('connection', (socket) => {
 		users.push({ id: socket.id, username: username });
 		emitRooms();
 		emitUsers();
-	});
-	socket.on('sendMessage', (msgObj) => {
-		console.log(msgObj.room);
-		// socket.to(roomname).broadcast.emit('message', { message: message, name: roomnames[roomname].users[socket.id] });
-		console.log('sender:', msgObj.sender, 'msg:', msgObj.message, 'room', msgObj.room);
-		let obj = { sender: msgObj.sender, msg: msgObj.message };
-		// socket.in(msgObj.room).emit('received', obj);
-		sendMsg(msgObj.room, obj);
+
 		//save chat to DB
 		connect.then((db) => {
 			//new document
-			let chatMessage = new Chat({ message: msgObj.message, sender: msgObj.sender });
-			chatMessage.save();
-			//console.log("- message saved to database");
+			let event = new Socket({
+				event: 'create_room',
+				socketid: socket.id,
+				username: socket.username,
+				roomname: roomname
+			});
+			event.save();
 		});
 	});
+	socket.on('sendMessage', (msgObj) => {
+		let obj = { sender: msgObj.sender, msg: msgObj.message };
+		sendMsg(msgObj.room, obj);
+
+		//save chat to DB
+		connect.then((db) => {
+			//new document
+			let chatMessage = new Chat({ message: msgObj.message, sender: msgObj.sender, roomname: msgObj.room });
+			chatMessage.save();
+			let event = new Socket({
+				event: 'sendMessage',
+				socketid: socket.id,
+				username: socket.username,
+				roomname: roomname
+			});
+			event.save();
+		});
+	});
+
+	//is fired when someone is typingf
 	socket.on('typing', (obj) => {
-		// socket.broadcast.emit('typing', { username: socket.username });
 		socket.to(obj.room).emit('type', socket.username);
-		console.log(socket.username, 'is typing');
+		let event = new Socket({ event: 'typing', socketid: socket.id, username: socket.username, roomname: obj.room });
+		event.save();
 	});
 
 	socket.on('stopped_typing', (roomname) => {
 		console.log(socket.username, 'has stopped typing', roomname);
 		socket.to(roomname).emit('stop_typing', socket.username);
+		let event = new Socket({
+			event: 'stopped_typing',
+			socketid: socket.id,
+			username: socket.username,
+			roomname: roomname
+		});
+		event.save();
 	});
 
 	socket.on('username', (username) => {
@@ -98,11 +139,9 @@ io.on('connection', (socket) => {
 		// console.log(socket.username, 'has joined the room:', roomname);
 		let data = { user: socket.username, id: socket.id };
 		userjoined(data, roomname);
+		let event = new Socket({ event: 'join', socketid: socket.id, username: socket.username, roomname: roomname });
+		event.save();
 	});
-
-	// socket.on('delete_room', (roomname) => {
-	// 	console.log(io.sockets.in(roomname));
-	// });
 
 	socket.on('disconnect', () => {
 		console.log('User disconnected');

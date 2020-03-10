@@ -1,6 +1,6 @@
 const express = require('express');
 const connectdb = require('../dbConnection');
-const Chats = require('../models/chatSchema');
+const Socket = require('../models/socketSchema');
 const router = express.Router();
 
 router.route('/').get((req, res, next) => {
@@ -9,8 +9,8 @@ router.route('/').get((req, res, next) => {
 	res.statusCode = 200;
 
 	connectdb.then((db) => {
-		Chats.find({}).then((chat) => {
-			res.send(chat);
+		Socket.find({}).then((socket) => {
+			res.send(socket);
 		});
 	});
 });

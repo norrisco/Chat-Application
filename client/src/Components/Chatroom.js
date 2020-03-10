@@ -4,6 +4,7 @@ import { Input, Button, ListGroup, Container, ListGroupItem } from 'reactstrap';
 import socket from '../socket';
 import Joins from './Joins';
 import Chats from './Chats';
+import { Link } from 'react-router-dom';
 
 class Chatroom extends Component {
 	constructor() {
@@ -101,7 +102,9 @@ class Chatroom extends Component {
 					<p className="display-5" style={{ display: 'inline-block' }}>
 						Hello, welcome to chatroom <b>{this.state.roomName}</b>.
 					</p>
-					<button className="btn btn-danger float-right">Exit chatroom</button>
+					<Link to="/">
+						<button className="btn btn-danger float-right">Exit chatroom</button>
+					</Link>
 				</div>
 				<ListGroup>
 					{this.state.chats}
