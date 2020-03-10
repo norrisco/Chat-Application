@@ -3,15 +3,19 @@ import './Chatroom.css';
 import { Input, Button, Row } from 'reactstrap';
 import socket from '../socket';
 import Joins from './Joins';
+import Chats from './Chats';
 
 class Chatroom extends Component {
 	constructor() {
 		super();
+		let typingTimer = null;
+		this.handleMessage = this.handleMessage.bind(this);
 		this.state = {
 			message: '',
 			username: '',
 			roomName: '',
 			friend: '',
+			sender: '',
 			chats: [],
 			isTyping: false,
 			timeout: 0
@@ -33,11 +37,46 @@ class Chatroom extends Component {
 			return;
 		}
 	};
-	handleMessage = (e) => {
-		this.setState({ message: e.target.value });
-		socket.emit('typing', this.state.roomName);
+	typingTimeout = () => {
+		this.setState({
+			isTyping: false
+		});
 	};
 
+	handleMessage = (e) => {
+		this.setState({ message: e.target.value });
+		if (this._timeout) {
+			//if there is already a timeout in process cancel it
+			clearTimeout(this._timeout);
+		}
+		this._timeout = setTimeout(() => {
+			this._timeout = null;
+			socket.emit('stopped_typing', this.state.roomName);
+		}, 1000);
+	};
+
+	typing = (e) => {
+		let obj = { room: this.state.roomName, typing: true };
+		socket.emit('typing', obj);
+	};
+
+	joined = (id) => {
+		this.setState({
+			chats: [ ...this.state.chats, <Joins key={id} friend={this.state.friend} /> ]
+		});
+	};
+	sendMsg = (e) => {
+		e.preventDefault();
+		let msg = { message: this.state.message, sender: this.state.username, room: this.state.roomName };
+		socket.emit('sendMessage', msg);
+		this.setState({ message: '' });
+	};
+	send = (data) => {
+		console.log('this is the message:', data.msg);
+		this.setState({
+			chats: [ ...this.state.chats, <Chats sender={data.sender} message={data.msg} /> ]
+		});
+	};
 	componentDidMount() {
 		this.getData();
 		socket.on('broadcast', (data) => {
@@ -47,12 +86,17 @@ class Chatroom extends Component {
 		socket.on('type', (username) => {
 			this.setState({ typer: username, isTyping: true });
 		});
-	}
-	joined = (id) => {
-		this.setState({
-			chats: [ ...this.state.chats, <Joins key={id} friend={this.state.friend} /> ]
+		socket.on('stop_typing', (username) => {
+			this.setState({ isTyping: false });
 		});
-	};
+		socket.on('received', (data) => {
+			this.send(data);
+			console.log(data.sender, ':', data.msg);
+		});
+	}
+	componentWillUnmount() {
+		clearTimeout(this.typingTimer);
+	}
 	render() {
 		return (
 			<div className="Chatroom">
@@ -63,7 +107,7 @@ class Chatroom extends Component {
 						{this.state.isTyping ? <p>{this.state.typer} is typing....</p> : null}
 					</div>
 				</Row>
-				<form id="sendContainer">
+				<form id="sendContainer" onSubmit={this.sendMsg}>
 					<Input
 						type="text"
 						name="text"
@@ -72,9 +116,10 @@ class Chatroom extends Component {
 						value={this.state.message}
 						onChange={this.handleMessage}
 						onKeyPress={this.typing}
-						// onKeyUp={this.stopType}
 					/>
-					<Button color="primary">Send</Button>
+					<Button color="primary" onClick={this.sendMsg}>
+						Send
+					</Button>
 				</form>
 			</div>
 		);

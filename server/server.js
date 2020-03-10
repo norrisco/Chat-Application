@@ -45,6 +45,9 @@ const userjoined = (data, roomname) => {
 	// io.emit('broadcast', username);
 	io.to(roomname).emit('broadcast', data);
 };
+const sendMsg = (roomname, data) => {
+	io.to(roomname).emit('received', data);
+};
 io.on('connection', (socket) => {
 	console.log('User connected: ', socket.id);
 	console.log(' %s sockets connected', io.engine.clientsCount);
@@ -61,10 +64,12 @@ io.on('connection', (socket) => {
 		emitUsers();
 	});
 	socket.on('sendMessage', (msgObj) => {
+		console.log(msgObj.room);
 		// socket.to(roomname).broadcast.emit('message', { message: message, name: roomnames[roomname].users[socket.id] });
-		console.log(msgObj);
-		socket.broadcast.emit('received', msgObj);
-
+		console.log('sender:', msgObj.sender, 'msg:', msgObj.message, 'room', msgObj.room);
+		let obj = { sender: msgObj.sender, msg: msgObj.message };
+		// socket.in(msgObj.room).emit('received', obj);
+		sendMsg(msgObj.room, obj);
 		//save chat to DB
 		connect.then((db) => {
 			//new document
@@ -73,14 +78,15 @@ io.on('connection', (socket) => {
 			//console.log("- message saved to database");
 		});
 	});
-	socket.on('typing', (roomname) => {
+	socket.on('typing', (obj) => {
 		// socket.broadcast.emit('typing', { username: socket.username });
-		socket.to(roomname).emit('type', socket.username);
+		socket.to(obj.room).emit('type', socket.username);
 		console.log(socket.username, 'is typing');
 	});
 
-	socket.on('stopped_tying', ({ roomname }) => {
-		socket.to(roomname).emit('stopped_tying');
+	socket.on('stopped_typing', (roomname) => {
+		console.log(socket.username, 'has stopped typing', roomname);
+		socket.to(roomname).emit('stop_typing', socket.username);
 	});
 
 	socket.on('username', (username) => {
