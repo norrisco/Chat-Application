@@ -34,11 +34,6 @@ app.use('/chat', chatRouter);
 app.use('/events', socketRouter);
 app.use('/room', roomRouter);
 
-// app.post('/room', function(req, res) {
-// 	console.log('THIS IS FROM SERVER FILE', req.query.roomname);
-// 	res.end('yes');
-// });
-
 const users = [];
 const rooms = [];
 
@@ -68,7 +63,8 @@ const sendMsg = (roomname, data) => {
 io.on('connection', (socket) => {
 	console.log('User connected: ', socket.id);
 	console.log(' %s sockets connected', io.engine.clientsCount);
-	emitRooms();
+	io.emit('rooms', getRooms());
+	// emitRooms();
 	emitUsers();
 
 	socket.on('create_room', (roomname, username) => {
