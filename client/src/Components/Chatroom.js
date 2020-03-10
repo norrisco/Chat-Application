@@ -1,19 +1,20 @@
-import React, { Component } from 'react';
+import React, { Component, useState } from 'react';
 import './Chatroom.css';
 import { Input, Button, Row } from 'reactstrap';
 import socket from '../socket';
-import Chats from './Chats';
+import Joins from './Joins';
 
 class Chatroom extends Component {
-	constructor(props) {
-		super(props);
-		// this.displayData = [];
+	constructor() {
+		super();
 		this.state = {
 			message: '',
 			username: '',
 			roomName: '',
 			friend: '',
-			chats: []
+			chats: [],
+			isTyping: false,
+			timeout: 0
 		};
 	}
 	prompUserData(room) {
@@ -21,7 +22,6 @@ class Chatroom extends Component {
 		this.setState({ username: user });
 		socket.emit('username', user);
 		socket.emit('join', room);
-		// this.joined();
 	}
 
 	getData = () => {
@@ -33,16 +33,24 @@ class Chatroom extends Component {
 			return;
 		}
 	};
+	handleMessage = (e) => {
+		this.setState({ message: e.target.value });
+		socket.emit('typing', this.state.roomName);
+	};
+
 	componentDidMount() {
 		this.getData();
 		socket.on('broadcast', (data) => {
 			this.setState({ friend: data.user });
 			this.joined(data.id);
 		});
+		socket.on('type', (username) => {
+			this.setState({ typer: username, isTyping: true });
+		});
 	}
 	joined = (id) => {
 		this.setState({
-			chats: [ ...this.state.chats, <Chats key={id} friend={this.state.friend} /> ]
+			chats: [ ...this.state.chats, <Joins key={id} friend={this.state.friend} /> ]
 		});
 	};
 	render() {
@@ -50,7 +58,10 @@ class Chatroom extends Component {
 			<div className="Chatroom">
 				<Row>Hello, {this.state.username}</Row>
 				<Row>
-					<div id="messageContainer">{this.state.chats}</div>
+					<div id="messageContainer">
+						{this.state.chats}
+						{this.state.isTyping ? <p>{this.state.typer} is typing....</p> : null}
+					</div>
 				</Row>
 				<form id="sendContainer">
 					<Input
@@ -60,7 +71,8 @@ class Chatroom extends Component {
 						placeholder="Type your message here:"
 						value={this.state.message}
 						onChange={this.handleMessage}
-						// onKeyPress={this.handleKeyPress}
+						onKeyPress={this.typing}
+						// onKeyUp={this.stopType}
 					/>
 					<Button color="primary">Send</Button>
 				</form>
@@ -69,95 +81,3 @@ class Chatroom extends Component {
 	}
 }
 export default Chatroom;
-// friends: [ ...this.state.friends, data ]
-
-// import React, { Component } from 'react';
-// import './Chatroom.css';
-// import { Input, Button, Row } from 'reactstrap';
-// import socket from '../socket';
-// import Chat from './Chats';
-
-// class Chatroom extends Component {
-// 	constructor(props) {
-// 		super(props);
-// 		this.state = {
-// 			message: '',
-// 			username: '',
-// 			roomName: '',
-// 			rooms: [],
-// 			isTyping: false,
-// 			friend: ''
-// 		};
-// 	}
-// 	handleMessage = (e) => {
-// 		socket.emit('typing', this.state.roomName);
-// 		this.setState({ message: e.target.value, isTyping: true });
-// 	};
-
-// 	sendMessage = (e) => {
-// 		e.preventDefault();
-// 		let msg = { message: this.state.message, sender: this.state.username };
-// 		socket.emit('sendMessage', msg);
-// 	};
-
-// 	getData = () => {
-// 		const user = this.props.location.username;
-// 		const room = this.props.location.roomName;
-// 		this.setState({ username: user, roomName: room });
-// 		if (user === '') {
-// 			this.prompUserData(room);
-// 			return;
-// 		}
-// 	};
-
-// 	listenTyping = () => {
-// 		socket.on('typing', (data) => {
-// 			console.log(data.username, 'is typing');
-// 		});
-// 	};
-// 	handleKeyPress = (e) => {
-// 		socket.emit('typing');
-// 		this.setState({ isTyping: true });
-// 	};
-
-// 	prompUserData(room) {
-// 		let user = prompt('what is your name?');
-// 		this.setState({ username: user });
-// 		socket.emit('username', user);
-// 		socket.emit('join', room);
-// 		socket.on('joined_room', (username) => {
-// 			console.log(username);
-// 		});
-// 	}
-// 	componentDidMount() {
-// 		this.getData();
-// 	}
-
-// 	render() {
-// 		return (
-// 			<div className="Chatroom">
-// 				<Row>Hello, {this.state.username}</Row>
-// 				<Row>
-// 					<div id="messageContainer">
-// 						<Chat sender={this.state.username} message={this.state.message} />
-// 					</div>
-// 				</Row>
-// 				<form id="sendContainer">
-// 					<Input
-// 						type="text"
-// 						name="text"
-// 						id="messageInput"
-// 						placeholder="Type your message here:"
-// 						value={this.state.message}
-// 						onChange={this.handleMessage}
-// 						onKeyPress={this.handleKeyPress}
-// 					/>
-// 					<Button color="primary" onClick={this.sendMessage}>
-// 						Send
-// 					</Button>
-// 				</form>
-// 			</div>
-// 		);
-// 	}
-// }
-// export default Chatroom;

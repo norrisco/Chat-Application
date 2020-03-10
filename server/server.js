@@ -73,8 +73,10 @@ io.on('connection', (socket) => {
 			//console.log("- message saved to database");
 		});
 	});
-	socket.on('typing', (data) => {
-		socket.broadcast.emit('typing', { username: socket.username });
+	socket.on('typing', (roomname) => {
+		// socket.broadcast.emit('typing', { username: socket.username });
+		socket.to(roomname).emit('type', socket.username);
+		console.log(socket.username, 'is typing');
 	});
 
 	socket.on('stopped_tying', ({ roomname }) => {
@@ -87,14 +89,14 @@ io.on('connection', (socket) => {
 
 	socket.on('join', (roomname) => {
 		socket.join(roomname);
-		console.log(socket.username, 'has joined the room:', roomname);
+		// console.log(socket.username, 'has joined the room:', roomname);
 		let data = { user: socket.username, id: socket.id };
 		userjoined(data, roomname);
 	});
 
-	socket.on('delete_room', (roomname) => {
-		console.log(io.sockets.in(roomname));
-	});
+	// socket.on('delete_room', (roomname) => {
+	// 	console.log(io.sockets.in(roomname));
+	// });
 
 	socket.on('disconnect', () => {
 		console.log('User disconnected');
