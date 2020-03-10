@@ -6,11 +6,10 @@ class Header extends Component {
 	render() {
 		return (
 			<div>
-				<Navbar color="light" light expand="md">
+				<Navbar color="warning" light expand="md">
 					<NavbarBrand tag={Link} to="/">
 						Chat App
 					</NavbarBrand>
-
 					<Nav className="ml" navbar />
 				</Navbar>
 			</div>

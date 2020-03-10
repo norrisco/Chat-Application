@@ -1,25 +1,23 @@
 import React, { Component } from 'react';
-// import axios from 'axios';
-// const json = {};
+import { Table } from 'reactstrap';
+
 class ChatApi extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			error: null,
 			isLoaded: false,
-			posts: []
+			history: []
 		};
 	}
 
 	componentDidMount() {
-		// I will use fake api from jsonplaceholder website
-		// this return 100 posts
 		fetch('http://localhost:3001/chat').then((response) => response.json()).then(
 			// handle the result
 			(result) => {
 				this.setState({
 					isLoaded: true,
-					posts: result
+					history: result
 				});
 			},
 			// Handle error
@@ -32,7 +30,7 @@ class ChatApi extends Component {
 		);
 	}
 	render() {
-		const { error, isLoaded, posts } = this.state;
+		const { error, isLoaded, history } = this.state;
 
 		if (error) {
 			return <div>Error in loading</div>;
@@ -41,16 +39,30 @@ class ChatApi extends Component {
 		} else {
 			return (
 				<div>
-					<ol>
-						{posts.map((post) => (
-							<li key={post._id} align="start">
-								<div>
-									<p>{post.sender}</p>
-									<p>{post.message}</p>
-								</div>
-							</li>
-						))}
-					</ol>
+					<Table bordered>
+						<thead>
+							<tr>
+								<th>#</th>
+								<th>Room name</th>
+								<th>User</th>
+								<th>Message</th>
+								<th>Timestamp</th>
+							</tr>
+						</thead>
+						<tbody>
+							{history.map((message, index) => {
+								return (
+									<tr key={index}>
+										<td>{index + 1}</td>
+										<td>{message.roomname}</td>
+										<td>{message.sender}</td>
+										<td>{message.message}</td>
+										<td>{message.createdAt}</td>
+									</tr>
+								);
+							})}
+						</tbody>
+					</Table>
 				</div>
 			);
 		}

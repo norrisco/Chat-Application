@@ -1,15 +1,11 @@
 import React from 'react';
-import { Row } from 'reactstrap';
+import { ListGroupItem } from 'reactstrap';
 
 const Chats = (props) => {
 	return (
-		<div>
-			<Row>
-				<div>
-					{props.sender}:{props.message}
-				</div>
-			</Row>
-		</div>
+		<ListGroupItem>
+			{props.sender} : {props.message}
+		</ListGroupItem>
 	);
 };
 export default Chats;

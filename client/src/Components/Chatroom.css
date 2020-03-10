@@ -1,18 +1,6 @@
-#messageContainer {
-	width: 80%;
-	max-width: 1200px;
-}
-
-#messageContainer div {
-	background-color: #ccc;
-	padding: 5px;
-}
-
-#messageContainer div:nth-child(2n) {
-	background-color: #fff;
-}
 
 #sendContainer {
+	margin: auto;
 	position: fixed;
 	padding-bottom: 30px;
 	bottom: 0;

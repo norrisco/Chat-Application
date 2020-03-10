@@ -1,6 +1,6 @@
-import React, { Component, useState } from 'react';
+import React, { Component } from 'react';
 import './Chatroom.css';
-import { Input, Button, Row } from 'reactstrap';
+import { Input, Button, ListGroup, Container, ListGroupItem } from 'reactstrap';
 import socket from '../socket';
 import Joins from './Joins';
 import Chats from './Chats';
@@ -8,7 +8,7 @@ import Chats from './Chats';
 class Chatroom extends Component {
 	constructor() {
 		super();
-		let typingTimer = null;
+		// let typingTimer = null;
 		this.handleMessage = this.handleMessage.bind(this);
 		this.state = {
 			message: '',
@@ -94,34 +94,36 @@ class Chatroom extends Component {
 			console.log(data.sender, ':', data.msg);
 		});
 	}
-	componentWillUnmount() {
-		clearTimeout(this.typingTimer);
-	}
 	render() {
 		return (
-			<div className="Chatroom">
-				<Row>Hello, {this.state.username}</Row>
-				<Row>
-					<div id="messageContainer">
-						{this.state.chats}
-						{this.state.isTyping ? <p>{this.state.typer} is typing....</p> : null}
-					</div>
-				</Row>
+			<Container expand="lg">
+				<div className="bg-info clearfix" style={{ padding: '1rem' }}>
+					<p className="display-5" style={{ display: 'inline-block' }}>
+						Hello, welcome to chatroom <b>{this.state.roomName}</b>.
+					</p>
+					<button className="btn btn-danger float-right">Exit chatroom</button>
+				</div>
+				<ListGroup>
+					{this.state.chats}
+					{this.state.isTyping ? <ListGroupItem>{this.state.typer} is typing....</ListGroupItem> : null}
+				</ListGroup>
 				<form id="sendContainer" onSubmit={this.sendMsg}>
-					<Input
-						type="text"
-						name="text"
-						id="messageInput"
-						placeholder="Type your message here:"
-						value={this.state.message}
-						onChange={this.handleMessage}
-						onKeyPress={this.typing}
-					/>
-					<Button color="primary" onClick={this.sendMsg}>
+					<div className="col-10">
+						<Input
+							type="text"
+							name="text"
+							id="messageInput"
+							placeholder="Type your message here.."
+							value={this.state.message}
+							onChange={this.handleMessage}
+							onKeyPress={this.typing}
+						/>
+					</div>
+					<Button className="col-2" color="primary" onClick={this.sendMsg}>
 						Send
 					</Button>
 				</form>
-			</div>
+			</Container>
 		);
 	}
 }

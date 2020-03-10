@@ -1,13 +1,7 @@
-import React, { Component } from 'react';
-import { Row } from 'reactstrap';
+import React from 'react';
+import { ListGroupItem } from 'reactstrap';
 
 const Joins = (props) => {
-	return (
-		<div>
-			<Row>
-				<div>{props.friend} has joined the chat.</div>
-			</Row>
-		</div>
-	);
+	return <ListGroupItem>{props.friend} has joined the chatroom.</ListGroupItem>;
 };
 export default Joins;
