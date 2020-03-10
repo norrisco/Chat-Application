@@ -7,12 +7,13 @@ import Chats from './Chats';
 class Chatroom extends Component {
 	constructor(props) {
 		super(props);
+		// this.displayData = [];
 		this.state = {
 			message: '',
 			username: '',
 			roomName: '',
 			friend: '',
-			friends: []
+			chats: []
 		};
 	}
 	prompUserData(room) {
@@ -20,6 +21,7 @@ class Chatroom extends Component {
 		this.setState({ username: user });
 		socket.emit('username', user);
 		socket.emit('join', room);
+		// this.joined();
 	}
 
 	getData = () => {
@@ -31,26 +33,24 @@ class Chatroom extends Component {
 			return;
 		}
 	};
-
-	joined = () => {
-		return <Chats friend={this.state.friend} />;
-	};
-
 	componentDidMount() {
 		this.getData();
 		socket.on('broadcast', (data) => {
-			this.setState({ friend: data, friends: [ ...this.state.friends, data ] });
+			this.setState({ friend: data.user });
+			this.joined(data.id);
 		});
 	}
+	joined = (id) => {
+		this.setState({
+			chats: [ ...this.state.chats, <Chats key={id} friend={this.state.friend} /> ]
+		});
+	};
 	render() {
 		return (
 			<div className="Chatroom">
 				<Row>Hello, {this.state.username}</Row>
 				<Row>
-					<div id="messageContainer">
-						{this.state.friend !== '' ? <p>{this.state.friend} has joined the chat.</p> : null}
-						{this.joined}
-					</div>
+					<div id="messageContainer">{this.state.chats}</div>
 				</Row>
 				<form id="sendContainer">
 					<Input
@@ -59,7 +59,7 @@ class Chatroom extends Component {
 						id="messageInput"
 						placeholder="Type your message here:"
 						value={this.state.message}
-						// onChange={this.handleMessage}
+						onChange={this.handleMessage}
 						// onKeyPress={this.handleKeyPress}
 					/>
 					<Button color="primary">Send</Button>
@@ -69,6 +69,7 @@ class Chatroom extends Component {
 	}
 }
 export default Chatroom;
+// friends: [ ...this.state.friends, data ]
 
 // import React, { Component } from 'react';
 // import './Chatroom.css';

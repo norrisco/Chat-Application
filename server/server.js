@@ -41,9 +41,9 @@ const emitUsers = () => {
 const returnUsername = () => {
 	io.emit('username', socket.username);
 };
-const userjoined = (username, roomname) => {
+const userjoined = (data, roomname) => {
 	// io.emit('broadcast', username);
-	io.to(roomname).emit('broadcast', username);
+	io.to(roomname).emit('broadcast', data);
 };
 io.on('connection', (socket) => {
 	console.log('User connected: ', socket.id);
@@ -88,7 +88,8 @@ io.on('connection', (socket) => {
 	socket.on('join', (roomname) => {
 		socket.join(roomname);
 		console.log(socket.username, 'has joined the room:', roomname);
-		userjoined(socket.username, roomname);
+		let data = { user: socket.username, id: socket.id };
+		userjoined(data, roomname);
 	});
 
 	socket.on('delete_room', (roomname) => {

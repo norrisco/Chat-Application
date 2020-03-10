@@ -7,7 +7,11 @@ class Chats extends Component {
 	}
 
 	render() {
-		return <div>{this.props.friend}</div>;
+		return (
+			<div>
+				<div>{this.props.friend} has joined the chat.</div>
+			</div>
+		);
 	}
 }
 export default Chats;
