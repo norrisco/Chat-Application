@@ -2,7 +2,7 @@
 COMP3133 Chat Application - Assignment 1
 
 Group Members:
-- Jezzica Tan, 
+- Jezzica Tan, 101142271
 - Norris Co, 101126499
 ```
 
