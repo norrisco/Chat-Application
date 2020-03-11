@@ -1,4 +1,6 @@
 ```
+COMP3133 Chat Application - Assignment 1
+
 Group Members:
 - Jezzica Tan, 
 - Norris Co, 101126499
@@ -25,7 +27,7 @@ Group Members:
 ```
 
 ```
-2) To test APIs, we need to run browser without CORS
+2 To test APIs, we need to run browser without CORS
    - For Windows
      - Right click on desktop, add new shortcut
      - Enter location of item as: "C:\Program Files (x86)\Google\Chrome\Application     \chrome.exe" --disable-web-security --disable-gpu --user-data-dir=~/chromeTemp
